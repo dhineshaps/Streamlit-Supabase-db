@@ -2,16 +2,23 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    - cron: '0 8 * * *' # Every day at 8 AM UTC (you can change the time)
+    - cron: '0 8 * * *' # Every day at 8 AM UTC
   workflow_dispatch: # Allow manual run too
 
 jobs:
   ping-supabase:
     runs-on: ubuntu-latest
     steps:
-      - name: Send ping to Supabase
+      - name: Ping Supabase REST API
         run: |
-          curl -X GET "https://anpufhhyswexjgwwddcy.supabase.co/rest/v1/All_Stock_Data?select=*" \
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X GET "https://anpufhhyswexjgwwddcy.supabase.co/rest/v1/All_Stock_Data?select=*" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Content-Type: application/json"
+            -H "Content-Type: application/json")
+
+          if [ "$response" -eq 200 ]; then
+            echo "✅ Supabase keep-alive ping successful!"
+          else
+            echo "❌ Supabase ping failed with status code $response"
+            exit 1
+          fi
