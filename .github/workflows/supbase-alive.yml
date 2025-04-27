@@ -1,0 +1,17 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # Every day at 8 AM UTC (you can change the time)
+  workflow_dispatch: # Allow manual run too
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send ping to Supabase
+        run: |
+          curl -X GET "https://anpufhhyswexjgwwddcy.supabase.co/rest/v1/All_Stock_Data?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json"
